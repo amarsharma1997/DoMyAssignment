@@ -61,7 +61,7 @@ class TipsDialog extends JDialog implements ActionListener
         JLabel Note,Sequence1,Sequence2,Tip1,Tip2,Tip3,Tip4,Tip5,Label;
         Note=new JLabel("Read these points carefully to get proper results.");
         Sequence1=new JLabel("1) Use A4 paper(Without Line) and black pen and camera >8MP.");
-        Sequence2=new JLabel("2) Write this sequence a-z   A-Z   0-9   !   @   #   $   %   ^   &   *   (   )   _   +   {   }   [   ]   |   \\   :   ;   '   ~   ,   .   /   <   >   ?");
+        Sequence2=new JLabel("2) Write this sequence a-z   A-Z   0-9   !   @   #   $   %   ^   &   *  (   )   _   + = {   }   [   ]   |   \\   :   ;  '   ~   ,   .   /   <   >   ?");
         Tip1=new JLabel("3) You can change lines but not the sequence.Please Maintain a distance between two consecutive character rows.");
         Tip2=new JLabel("4) There should no extra dots or anything this may cause errors in character recognition.");
         Tip3=new JLabel("5) Get the picture carefully the picture must contain only the paper area.");
@@ -200,7 +200,7 @@ public class CharactersScan extends javax.swing.JFrame
     //Recognizing The Characters From The Submitted Image.....
     void recognizeCharacters(File SelectedFile)
     {
-        Pattern="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+{}[]|\\:;'~,./<>?";
+        Pattern="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+={}[]|\\:;'~,./<>?";
         length=Pattern.length();
         int i,j;
         Image img;
@@ -400,6 +400,7 @@ public class CharactersScan extends javax.swing.JFrame
 
 
     //To Find All The Connected Points.....
+    int dirc[][]={{1,1},{1,-1},{-1,1},{-1,-1}};
     void DepthFirstSearch(int X,int Y)
     {
         PixVis[X][Y]=true;
@@ -408,6 +409,21 @@ public class CharactersScan extends javax.swing.JFrame
         Chary=Math.max(Chary,Y);
         Charmny=Math.min(Charmny,Y);
         int i,x,y;
+        int r,c,j;
+        for(i=0;i<=2;i++)
+        {
+            r=i;
+            c=2-i;
+            for(j=0;j<4;j++)
+            {
+                x=X+dirc[j][0]*r;
+                y=Y+dirc[j][1]*c;
+                if((x>=0)&&(x<Width)&&(y>=0)&&(y<Height)&&(PixVis[x][y]==false)&&(isBlack(x,y)))
+                {
+                    DepthFirstSearch(x,y);
+                }
+            }
+        }
         for(i=0;i<4;i++)
         {
             x=X+Direction[i][0];

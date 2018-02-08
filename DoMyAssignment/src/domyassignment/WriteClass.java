@@ -66,9 +66,17 @@ public class WriteClass
     
     public BufferedImage writeText(String s)
     {
-        int i,len=s.length();
+        int i,len=s.length(),rn=0;
         for(i=0;i<len;i++)
         {
+            if(!((s.charAt(i)>='a')&&(s.charAt(i)<='z')))
+            {
+                curx+=5;
+            }
+            else if((i>0)&&(!(((s.charAt(i-1)>='a')&&(s.charAt(i-1)<='z'))||((s.charAt(i-1)>='A')&&(s.charAt(i-1)<='Z')))))
+            {
+                curx+=5;
+            }
             changePage();
             changeLine();
             cury=lns.arr.get(curline).a[curx];
@@ -82,7 +90,23 @@ public class WriteClass
             }
             else
             {
-                CharacterProperty cp= myModel.getStyle(s.charAt(i));
+                int offset=0;
+                CharacterProperty cp;
+                if(s.charAt(i)=='-')
+                {
+                    offset=25;
+                    cp= myModel.getStyle('_');
+                }
+                else if(s.charAt(i)=='\"')
+                {
+                    cp= myModel.getStyle('\'');
+                    rn++;
+                    offset=35;
+                }
+                else
+                {
+                    cp= myModel.getStyle(s.charAt(i));
+                }
                 ArrayList<CoOrdinate > arr;
                 try
                 {
@@ -108,10 +132,18 @@ public class WriteClass
                 {   
                     c=arr.get(ind);
         //            System.out.println((curx+c.x)+" "+(cury+c.y));
-                    cur.setRGB(curx+c.x,cury+c.y,color.getRGB());
+                    cur.setRGB(curx+c.x,cury+c.y-offset,color.getRGB());
                     curmx=Math.max(curmx,curx+c.x);
                 }
                 curx=curmx;
+                if(rn==1)
+                {
+                    i--;
+                }
+                if(rn==2)
+                {
+                    rn=0;
+                }
             }
         }
         try

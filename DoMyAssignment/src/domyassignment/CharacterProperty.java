@@ -15,7 +15,7 @@ public class CharacterProperty implements Serializable
     CharacterProperty(char c)
     {
         this.c=c;
-        if((c=='i')||(c=='j')||(c==';')||(c==':')||(c=='!')||(c=='?'))
+        if((c=='i')||(c=='j')||(c==';')||(c==':')||(c=='!')||(c=='?')||(c=='='))
         {
             set=2;
         }
