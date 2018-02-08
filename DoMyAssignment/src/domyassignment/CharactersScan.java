@@ -30,6 +30,7 @@ import java.io.ObjectOutputStream;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.util.ArrayList;
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 class TipsDialog extends JDialog implements ActionListener
@@ -523,7 +524,7 @@ public class CharactersScan extends javax.swing.JFrame
                     Current=new ArrayList<CoOrdinate>();
                     FilterDFS(i,j);
                     cnt=Current.size();
-                    if(cnt<=50)
+                    if(cnt<25)
                     {
                         for(k=0;k<cnt;k++)
                         {
@@ -657,6 +658,12 @@ public class CharactersScan extends javax.swing.JFrame
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+       String s=jTextField1.getText();
+       if(s.equals(""))
+       {
+           new JOptionPane().showMessageDialog(this,"Enter Name First..");
+           return ;
+       }
        if(StoreStyle(jTextField1.getText()))
        {
            dispose();

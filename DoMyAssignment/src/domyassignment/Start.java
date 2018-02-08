@@ -126,7 +126,6 @@ public class Start extends javax.swing.JFrame
             SelectedFile=Chooser.getSelectedFile();
             new PageScan(SelectedFile);
         }
-        dispose();
     }//GEN-LAST:event_jButton3ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

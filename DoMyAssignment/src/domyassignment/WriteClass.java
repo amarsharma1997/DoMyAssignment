@@ -6,36 +6,72 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
+import java.awt.Image;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
 
 public class WriteClass 
 {
     StyleModel myModel;
     Color color;
     int Width=2825,Height=4200;
-    int curpage=-1;
+    //int Width=2408,Height=3580;
+    int curpage=-1,curline;
     int curx,cury,linespace,charactergap,space,MXH,MNH,MXW,MNW;
     BufferedImage bi[],cur;
-    WriteClass(String style,Color clr)
+    int totallines;
+    Lines lns;
+    BufferedImage PageStyle;
+    String Storepath;
+    
+    
+    WriteClass(String style,Color clr,String Path,String Storepath,String PageName)
     {
+        this.Storepath=Storepath;
+        loadPageStyle(Path+"\\Pages\\"+PageName,PageName);
         curx=Width+1;
         cury=Height+1;
+        curline=totallines;
         linespace=150;
-        charactergap=40;
-        space=100;
-        MXH=Height-100;
-        MNH=500;
-        MXW=Width-100;
-        MNW=200;
         myModel=new StyleModel(style);
         this.color=clr;
     }
+    
+    void loadAttributes()
+    {
+        charactergap=40;
+        space=60;
+        totallines=lns.arr.size();
+    }
+    
+    void loadPageStyle(String Path,String PageName)
+    {
+        File file=new File(Path+"\\Image.jpeg");
+        try
+        {
+            Image img=ImageIO.read(file);
+            PageStyle=new BufferedImage(Width,Height,BufferedImage.TYPE_INT_RGB);
+            PageStyle.getGraphics().drawImage(img, 0, 0, null);
+            file=new File(Path+"\\"+PageName);
+            ObjectInputStream oos=new ObjectInputStream(new FileInputStream(Path+"\\"+PageName));
+            lns=(Lines ) oos.readObject();
+            oos.close();
+        }
+        catch(Exception e)
+        {
+            System.out.println(e);
+        }
+        loadAttributes();
+    }
+    
     public BufferedImage writeText(String s)
     {
         int i,len=s.length();
         for(i=0;i<len;i++)
         {
-            changeLine();
             changePage();
+            changeLine();
+            cury=lns.arr.get(curline).a[curx];
             if(s.charAt(i)==' ')
             {
                 curx+=space;
@@ -71,6 +107,7 @@ public class WriteClass
                 for(ind=0;ind<arr.size();ind++)
                 {   
                     c=arr.get(ind);
+        //            System.out.println((curx+c.x)+" "+(cury+c.y));
                     cur.setRGB(curx+c.x,cury+c.y,color.getRGB());
                     curmx=Math.max(curmx,curx+c.x);
                 }
@@ -79,12 +116,13 @@ public class WriteClass
         }
         try
         {
-            File file=new File("F:\\img"+curpage+".jpeg");
+            File file=new File(Storepath+"\\Image"+curpage+".jpeg");
             file.createNewFile();
             ImageIO.write(cur, "jpeg", file);
         }
         catch(IOException e)
         {
+            System.out.println(e);
         }
         return cur;
     }
@@ -93,21 +131,28 @@ public class WriteClass
     {
         if(curx>MXW)
         {
-            curx=MNW;
-            cury=cury+linespace;
+            curline++;
+            if(curline<totallines)
+            {
+                curx=lns.arr.get(curline).mn;
+                MXW=lns.arr.get(curline).mx;
+            }
+            else
+            {
+                changePage();
+            }
         }
     }
     
     void changePage() 
     {
-        if(cury>MXH)
+        if(curline>=totallines)
         {
             if(curpage>=0)
             {
-                //bi[curpage]=cur;
                 try
                 {
-                    File file=new File("F:\\img"+curpage+".jpeg");
+                    File file=new File(this.Storepath+"\\Image"+curpage+".jpeg");
                     file.createNewFile();
                     ImageIO.write(cur, "jpeg", file);
                 }
@@ -118,19 +163,20 @@ public class WriteClass
             }
             curpage++;
             cur=new BufferedImage(Width,Height,BufferedImage.TYPE_INT_RGB);
-            putWhite();
-            curx=MNW;
-            cury=MNH;
+            makePage();
+            curline=0;
+            curx=lns.arr.get(curline).mn;
+            MXW=lns.arr.get(curline).mx;
         }
     }
-    void putWhite()
+    void makePage()
     {
         int i,j;
         for(i=0;i<Width;i++)
         {
             for(j=0;j<Height;j++)
             {
-                cur.setRGB(i, j, Color.WHITE.getRGB());
+                cur.setRGB(i, j, PageStyle.getRGB(i,j));
             }
         }
     }
